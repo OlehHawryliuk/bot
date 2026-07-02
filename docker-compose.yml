@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  weather-bot:
+    build: .
+    container_name: weather-telegram-bot
+    env_file: .env
+    restart: always
