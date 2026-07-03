@@ -6,10 +6,39 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/joho/godotenv"
 )
+
+func getWeatherEmoji(description string) string {
+	description = strings.ToLower(description)
+
+	if strings.Contains(description, "rain") {
+		return "🌧️"
+	}
+	if strings.Contains(description, "clear") || strings.Contains(description, "sunny") {
+		return "☀️"
+	}
+	if strings.Contains(description, "cloud") {
+		return "☁️"
+	}
+	if strings.Contains(description, "snow") {
+		return "❄️"
+	}
+	if strings.Contains(description, "thunder") || strings.Contains(description, "storm") {
+		return "⛈️"
+	}
+	if strings.Contains(description, "mist") || strings.Contains(description, "fog") {
+		return "🌫️"
+	}
+	if strings.Contains(description, "wind") {
+		return "💨"
+	}
+
+	return "🌤️"
+}
 
 func getWeatherForecast(city string) string {
 	apiKey := os.Getenv("WEATHER_API_KEY")
@@ -53,10 +82,15 @@ func getWeatherForecast(city string) string {
 		forecast := forecastData.List[i]
 		hour := (forecast.Dt % 86400) / 3600
 
+		emoji := getWeatherEmoji(forecast.Weather[0].Description)
 		result += fmt.Sprintf(
-			"⏰ %02d:00 - Temp: %.1f°C | %s | Humidity: %d%%\n",
+			"⏰ %02d:00\n"+
+				"🌡️ Temp: %.1f°C\n"+
+				"%s %s\n"+
+				"💧 Humidity: %d%%\n\n",
 			hour,
 			forecast.Main.Temp,
+			emoji,
 			forecast.Weather[0].Description,
 			forecast.Main.Humidity,
 		)
